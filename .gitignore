@@ -1,0 +1,8 @@
+.ipynb_checkpoints/*
+*.pdf
+NLP_lessons/*
+PJ/*
+TODO.md
+__pycache__/*
+data/*
+image_lesson/*
