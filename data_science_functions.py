@@ -15,8 +15,10 @@ from sklearn.metrics import silhouette_score
 
 from sklearn.metrics import adjusted_rand_score
 from sklearn.metrics import rand_score
-
+from sklearn.pipeline import Pipeline
 from sklearn.manifold import TSNE
+from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans
 
 from scipy.stats import pearsonr
 from scipy.cluster.hierarchy import dendrogram
@@ -24,6 +26,10 @@ from scipy.cluster.hierarchy import dendrogram
 import xgboost as xgb
 
 import colorcet as cc
+
+from collections import defaultdict
+from sklearn import metrics
+from time import time
   
 # NUMERICAL/NUMERICAL Analysis
 def display_correlation_matrix(data, features=None, figsize=(11,9)):
@@ -921,6 +927,119 @@ def label_similarity(df, label_name_a, label_name_b):
     print(f'{label_name_a} and {label_name_b}:')
     print(f'    ARI : {adjusted_rand_score(df[label_name_a], df[label_name_b])}')
     print(f'    RI : {rand_score(df[label_name_a], df[label_name_b])}') 
+    
+    
+def get_topic_label(fit_model, X):
+    """ Return a vector of topic label
+        determine as the most probable latent topic
+        from a fit LDA or NMF object """
+    return np.argmax(fit_model.transform(X), axis=1)
+
+
+def fit_and_evaluate_clusters(
+    model, X, labels, name,
+    evaluations=[], evaluations_std=[],
+    n_runs=5
+):
+    """ 
+        Compute mean and std of cluster scores obtained thanks to the
+        'model' clustering model on n_runs.
+        
+        'model' can either be a clustering model or a pipeline.
+        
+        Print, and append results to 'evaluations' and 'evaluations_std'.
+    """
+
+    train_times = []
+    scores = defaultdict(list)
+    for seed in range(n_runs):
+        # Fast patch to make the function work with pipelines.
+        if isinstance(model, Pipeline):
+            model[-1].set_params(random_state=seed)
+        else:    
+            model.set_params(random_state=seed)
+        
+        t0 = time()
+        # Compute the clusterer input depending on the type of the model
+        if isinstance(model, Pipeline):
+            X_in_clusterer = model[:-1].fit_transform(X)
+        else:
+            X_in_clusterer = X
+        # Extract the clusterer from the model    
+        if isinstance(model, Pipeline):
+            clusterer = model[-1]
+        else:
+            clusterer = model
+        # Fit the clusterer    
+        clusterer.fit(X_in_clusterer)
+        train_times.append(time() - t0)
+            
+        match clusterer:
+            case KMeans():
+                y_pred = clusterer.labels_
+            case GaussianMixture():
+                y_pred = clusterer.predict(X_in_clusterer)
+            case NMF() | LatentDirichletAllocation():
+                y_pred = get_topic_label(clusterer, X_in_clusterer)
+            case _:
+                print('CLUSTERER TYPE yet not implemented')
+            
+        scores["Homogeneity"].append(metrics.homogeneity_score(labels, y_pred))
+        scores["Completeness"].append(metrics.completeness_score(labels, y_pred))
+        scores["V-measure"].append(metrics.v_measure_score(labels, y_pred))
+        scores["Adjusted Rand-Index"].append(
+            metrics.adjusted_rand_score(labels, y_pred)
+        )
+        scores["Silhouette"].append(
+            metrics.silhouette_score(X, y_pred, sample_size=2000)
+        )
+        
+    train_times = np.asarray(train_times)
+
+    print(f"clustering done in {train_times.mean():.2f} ± {train_times.std():.2f} s ")
+    evaluation = {
+        "estimator": name,
+        "train_time": train_times.mean(),
+    }
+    evaluation_std = {
+        "estimator": name,
+        "train_time": train_times.std(),
+    }
+    for score_name, score_values in scores.items():
+        mean_score, std_score = np.mean(score_values), np.std(score_values)
+        print(f"{score_name}: {mean_score:.3f} ± {std_score:.3f}")
+        evaluation[score_name] = mean_score
+        evaluation_std[score_name] = std_score
+    evaluations.append(evaluation)
+    evaluations_std.append(evaluation_std)
+    return None
+
+
+def display_clusters_scores(
+    evaluations, evaluations_std
+):        
+    fig, (ax0, ax1) = plt.subplots(
+        ncols=2,
+        figsize=(14, len(evaluations)*1.2),
+        sharey=True
+    )
+
+    evals = pd.DataFrame(evaluations[::-1]).set_index("estimator")
+    evals_std = pd.DataFrame(evaluations_std[::-1]).set_index("estimator")
+
+    evals.drop(
+        ["train_time"],
+        axis="columns",
+    ).plot.barh(ax=ax0, xerr=evals_std)
+    ax0.set_xlabel("Clustering scores")
+    ax0.set_ylabel("")
+
+    evals["train_time"].plot.barh(ax=ax1, xerr=evals_std["train_time"])
+    ax1.set_xlabel("Clustering time (s)")
+    plt.tight_layout()
+    plt.show()
+    return None
+    
 
 ### helper functions
 def arguments():
@@ -935,3 +1054,12 @@ def arguments():
         posargs = args.pop(posname, [])
         args.update(args.pop(kwname, []))
         return args, posargs
+    
+
+### SKlearn TSNE customization for pipeline compatibility
+class TSNE_wrapper(TSNE):
+    def transform(self, X):
+        return TSNE().fit_transform(X)
+    
+    def fit(self):
+        return TSNE().fit()
