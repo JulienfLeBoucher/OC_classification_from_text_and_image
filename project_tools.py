@@ -316,3 +316,27 @@ def get_topic_label(fit_model, X):
     """ label each individual wth its most probable latent topic
         from a fit LDA or NMF object """
     return np.argmax(fit_model.transform(X), axis=1)
+
+
+#### Word2Vec ####
+def get_word_vector(word, model):
+    """ Get the vector associated to 'word' by a
+        word2vec model (gensim).
+        
+        If the word is not in the vocabulary,
+        the null vector is returned. """
+    try:
+        return model.wv[word]
+    except KeyError:
+        return np.zeros((model.vector_size,))
+
+
+def get_sentence_vector(sentence, model, normalize=True):
+    """ return the sum of all vectors in a sentence.
+        Normalize the vector if 'normalize' is True. """
+    if normalize:
+        sum_vector = sum(get_word_vector(w, model) for w in sentence)
+        norm = np.linalg.norm(sentence_vector, 2)
+        return sum_vector / norm
+    else:
+        return sum(get_word_vector(w, model) for w in sentence)
