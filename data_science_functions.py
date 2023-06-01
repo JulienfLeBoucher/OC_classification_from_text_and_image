@@ -19,6 +19,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.manifold import TSNE
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.decomposition import NMF
+
+
 
 from scipy.stats import pearsonr
 from scipy.cluster.hierarchy import dendrogram
@@ -960,11 +964,18 @@ def fit_and_evaluate_clusters(
             model.set_params(random_state=seed)
         
         t0 = time()
+        
         # Compute the clusterer input depending on the type of the model
-        if isinstance(model, Pipeline):
+        # and its length. (This enables to pass to the function pipelines
+        # with only one step)
+        if (
+            isinstance(model, Pipeline) 
+                and (len(model.named_steps) > 1)
+        ):
             X_in_clusterer = model[:-1].fit_transform(X)
         else:
             X_in_clusterer = X
+            
         # Extract the clusterer from the model    
         if isinstance(model, Pipeline):
             clusterer = model[-1]
