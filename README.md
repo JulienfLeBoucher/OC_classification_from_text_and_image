@@ -5,7 +5,7 @@
 - Provide an image-based classification model that uses data augmentation.
 - Develop a script to extract data of certain products through an API.
 
-In order to do that I develop several notebooks as such :
+In order to do that I develop several notebooks.
 
 ## Natural Language Processing
 
