@@ -1,9 +1,11 @@
-# Products classification based on a picture and text description.
+# Products classification based on a picture and a text description.
 
-The global goals of this project were to :
-- Assess the feasibility of clustering products sold on an indian e-platform called Flipkart thanks to the description of the product and/or its image.
-- Deliver a classification model that uses data augmentation.
+**Main goals** :
+- Assess the feasibility of clustering products sold on an indian e-platform thanks to the description of the product and/or its image.
+- Provide an image-based classification model that uses data augmentation.
 - Develop a script to extract data of certain products through an API.
+
+In order to do that I develop several notebooks as such :
 
 ## Natural Language Processing
 
