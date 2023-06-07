@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import nltk
 import string
 import re
+import cv2 as cv
 
 # Define collection of words/tokens
 stopwords = nltk.corpus.stopwords.words('english')
@@ -340,3 +341,83 @@ def get_sentence_vector(sentence, model, normalize=True):
         return sum_vector / norm
     else:
         return sum(get_word_vector(w, model) for w in sentence)
+    
+    
+def resize_based_on_lowest_dimension(img, n_pixels=200):
+    """ Resize an image preserving its shape while mapping its short 
+        side to 'n_pixels'."""
+    # Find the ratio between the desired image and the image fed-in.
+    ratio = (n_pixels / min(img.shape[:2]))
+    # Store the short side rank
+    low_dim = np.argmin(img.shape[:2])
+    # Resize while ensuring there is no rounding problems 
+    # on the short side which could end up being 199 if multiply doing
+    # the maths.
+    if low_dim == 0:
+        width = int(img.shape[1] * ratio)
+        height = int(n_pixels)
+    else:
+        width = int(n_pixels)
+        height = int(img.shape[0] * ratio)
+        
+    new_dim = (width, height)
+    return cv.resize(img, new_dim, interpolation = cv.INTER_AREA)
+
+
+def create_image_vector_from_sift_descriptors(img_descriptors, fit_kmeans):
+    # Compute labels of each descriptor in the image.
+    # float64 is needed for buffer compatibility.
+    labels = fit_kmeans.predict(np.float64(img_descriptors))
+    # Instantiate a null vector of length n_clusters and fill it
+    # to buid a normalized histogram.
+    img_vect = np.zeros(fit_kmeans.cluster_centers_.shape[0])
+    for unique, count in zip(*np.unique(labels, return_counts=True)):
+        img_vect[unique] = count / len(img_descriptors)
+    return img_vect
+
+
+def create_image_vector_from_descriptors(img_descriptors, fit_kmeans):
+    # Compute labels of each descriptor in the image.
+    # float64 is needed for buffer compatibility.
+    labels = fit_kmeans.predict(np.float64(img_descriptors))
+    # Instantiate a null vector of length n_clusters and fill it
+    # to buid a normalized histogram.
+    img_vect = np.zeros(fit_kmeans.cluster_centers_.shape[0])
+    for unique, count in zip(*np.unique(labels, return_counts=True)):
+        img_vect[unique] = count / len(img_descriptors)
+    return img_vect
+
+
+def compute_labels_occurrences_in_all_images(descriptors_list, fit_kmeans):
+    # Instantiate the null vector (count = 0 for all visual words)
+    # with the right shape
+    labels_occurrences = np.zeros(fit_kmeans.cluster_centers_.shape[0])
+    # Goes through each image, find the visual words, and update 
+    # the count of its presence in the entire list.
+    for img_descriptors in descriptors_list:
+        for unique in np.unique(
+            fit_kmeans.predict(np.float64(img_descriptors))
+        ):
+            labels_occurrences[unique] += 1
+    return labels_occurrences
+    
+    
+def create_tfidf_image_vector_from_sift_descriptors(
+        img_descriptors,
+        corpus_labels_occurrences,
+        n_images,
+        fit_kmeans,
+    ):
+    """ Return the normalized tfidf image vector based on
+    its SIFT features mapped to the visual words vocabulary."""
+    # Compute labels of each descriptor in the image.
+    # float64 is needed for buffer compatibility.
+    labels = fit_kmeans.predict(np.float64(img_descriptors))
+    # Instantiate a null vector of length n_clusters (length of the
+    # visual words vocabulary) and fill it with the count, normalized 
+    # by the inverse of the document frequency 'idf'.
+    img_vect = np.zeros(fit_kmeans.cluster_centers_.shape[0])
+    for unique, count in zip(*np.unique(labels, return_counts=True)):
+        idf = np.log(n_images/ corpus_labels_occurrences[unique])
+        img_vect[unique] = count * idf
+    return img_vect / sum(img_vect)
