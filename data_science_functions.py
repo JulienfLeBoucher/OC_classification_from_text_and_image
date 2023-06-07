@@ -402,7 +402,7 @@ def display_tsne(
     # Boolean which automates plt.show() if no ax is provided.
     final_plot = False
     if ax is None:
-        fig, ax= plt.subplots(figsize=figsize)
+        fig, ax = plt.subplots(figsize=figsize)
         final_plot = True
 
     # Display the points
@@ -425,13 +425,17 @@ def display_tsne(
         ax.set_axis_off()
         if title is not None:
             ax.set_title(title)
+            
         ax.legend(bbox_to_anchor=(1.05, 1),
                     loc='upper left',
                     borderaxespad=0.,
                     fontsize=10)
         
-        if final_plot:
-            plt.show()
+        
+    if final_plot:
+        ax.set_axis_off()        
+        plt.show()
+        
     return None
 
 
