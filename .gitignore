@@ -7,3 +7,7 @@ __pycache__/*
 data/*
 image_lesson/*
 evaluations/*
+Flipkart_products_images/*
+histories/*
+logs/*
+models/*
