@@ -11,3 +11,4 @@ Flipkart_products_images/*
 histories/*
 logs/*
 models/*
+config.py
