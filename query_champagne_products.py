@@ -28,18 +28,16 @@ def extract_product_features(product_info, features):
     
         Return a Dataframe where each line is a feature from `features`.
     
-    - `product_info` is a dictionary in which keys are supposed to match
-        with `features`.
-    - `features` a list of desired features."""
+        - `product_info` is a dictionary in which keys are supposed to match
+           with `features`.
+        - `features` a list of desired features."""
     # Get the provided features.
     my_dict = {
         ft: val for ft, val in product_info.items()
         if ft in features
     }
-    
     # Add missing features filled with the NaN value.    
     my_dict.update({ft: NaN for ft in features if ft not in my_dict.keys()})
-    
     return pd.DataFrame.from_dict(my_dict, orient='index')
 
 
@@ -86,9 +84,9 @@ r_data = (
     .drop_duplicates()
 )
 
-# Write results to a csvfile if sufficient number of product.
+# Write results to a csvfile if a sufficient number of products were found.
 if r_data.shape[0] >= n_items:
     r_data.head(10).to_csv(csv_filename, index=False)
 else:
     print('Not enough well-provided products were retrieved from the API\n'
-          '--> Increase the number via the offset parameter')
+          '--> Increase the number via the `n_pages` parameter')
