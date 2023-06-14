@@ -12,3 +12,4 @@ histories/*
 logs/*
 models/*
 config.py
+.vscode/*
