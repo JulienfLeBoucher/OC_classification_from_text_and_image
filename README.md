@@ -1,4 +1,4 @@
-# Products classification based on a picture and a text description.
+# Product classification based on a picture and a text description.
 
 **Main goals** :
 - Assess the feasibility of clustering products sold on an indian e-platform thanks to the description of the product and/or its image.
@@ -18,3 +18,15 @@ outputs given by Word2Vec, sBERT and USE models.
 
 ## Image Processing
 - In the [fourth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/SIFT.ipynb), I discovered the OpenCV library and extracted image features obtained with the SIFT method. I then built a reduced 'feature vocabulary' using a clustering technique in order to characterize the content of each image with a relative low dimension vector. There, I assessed the classification feasibility.
+
+- In the [fifth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/ORB.ipynb), I led the same work switching to ORB keypoints and descriptors (non-patented). I got worse results and tried different techniques to improve that such as :
+    - contrast stretching + blur filters to reveal some details on images with no keypoints detected.
+    - binary segmentation (foreground/background) hoping to sufficiently reduce the information and find some patterns characterizing classes. Little win here!
+
+
+
+- The [sixth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/CNN.ipynb) is about exploring CNN's such as VGG16 and MobileNet to extract features. Out of the box, It provided interesting vectors to make an unsupervised classification. Furthermore, I decided to adapt classifiers based on the MobileNet model layers to serve my classification task. I tried some techniques to decrease over-fitting : image augmentation and using a dropout layer. 
+
+# API
+
+I learnt how to retrieve information from a website using the requests python package. The task was to extract the first ten products in relation with 'champagne' from a food database as long as they had some determined provided features. My first [exploration of the tool](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/test_api.ipynb) led to the subsequent [script](https://github.com/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/query_champagne_products.py).
