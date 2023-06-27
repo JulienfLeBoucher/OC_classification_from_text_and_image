@@ -1046,6 +1046,7 @@ def display_clusters_scores(
         ["train_time"],
         axis="columns",
     ).plot.barh(ax=ax0, xerr=evals_std)
+    ax0.legend(bbox_to_anchor=(-0.8, 0.5, 0.5, 0.5))
     ax0.set_xlabel("Clustering scores")
     ax0.set_ylabel("")
 
