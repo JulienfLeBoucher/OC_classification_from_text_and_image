@@ -27,6 +27,10 @@ outputs given by Word2Vec, sBERT and USE models.
 
 - The [sixth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/CNN.ipynb) is about exploring CNN's such as VGG16 and MobileNet to extract features. Out of the box, It provided interesting vectors to make an unsupervised classification. Furthermore, I decided to adapt classifiers based on the MobileNet model layers to serve my classification task. I tried some techniques to decrease over-fitting : image augmentation and using a dropout layer. 
 
+# Multimodal model
+
+Finally, I gave a try at early fusion [here](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/classification_from_mobilenet_and_USE_features.ipynb) to make prediction from the concatenation of features extracted from U.S.E. and MobileNet. Nevertheless, I can not use data augmentation this way, thus, I decided to implement a similar model based by doing joint-fusion ([see this paper](https://www.nature.com/articles/s41746-020-00341-z)) in this [last notebook](https://github.com/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/multimodal_model.ipynb). But it is not finished yet.
+
 # API
 
 I learnt how to retrieve information from a website using the requests python package. The task was to extract the first ten products in relation with 'champagne' from a food database as long as they had some determined provided features. My first [exploration of the tool](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/test_api.ipynb) led to the subsequent [script](https://github.com/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/query_champagne_products.py).
