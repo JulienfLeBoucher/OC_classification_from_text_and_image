@@ -52,7 +52,7 @@ headers = {
 querystr = {"ingr":product_of_interest}
 
 data =[]
-for k in range(5):
+for k in range(n_pages):
     response = requests.request("GET", url, headers=headers, params=querystr)
     
     if response.status_code == 200:
