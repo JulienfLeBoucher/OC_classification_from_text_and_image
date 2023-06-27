@@ -13,3 +13,9 @@ logs/*
 models/*
 config.py
 .vscode/*
+Flipkart_products_images2/*
+Flipkart_products/*
+logs2/*
+logs_joint/*
+models2/*
+models_joint/*
