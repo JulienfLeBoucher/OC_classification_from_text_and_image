@@ -17,10 +17,10 @@ In order to do that I developed several notebooks.
 
 ## Image Processing
 - In the [fourth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/SIFT.ipynb), I experimented with the OpenCV library. I tried the following approach to characterize the images : 
-1- Compute SIFT descriptors.
-2- Cluster descriptors.
-3- Associate an image with the histogram of the clustered descriptors.
-- Then, with those relatively low dimension vectors, I assessed the classification feasibility.
+1 - Compute SIFT descriptors.
+2 - Cluster descriptors.
+3 - Associate an image with the histogram of the clustered descriptors.
+Then, with those relatively low dimension vectors, I assessed the classification feasibility.
 
 - In the [fifth notebook](https://nbviewer.org/github/JulienfLeBoucher/OC_classification_from_text_and_image/blob/main/ORB.ipynb), I led the same work switching to ORB descriptors (non-patented). I got worse results and tried different techniques to improve that such as:
     - contrast stretching + blur filtering to reveal some details in the images with no keypoints detected.
